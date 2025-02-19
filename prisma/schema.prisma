@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model credentials {
+  id                    Int                     @id @default(autoincrement())
+  type                  String                  @db.VarChar(45)
+  identifier            String                  @unique(map: "identifier_UNIQUE") @db.VarChar(45)
+  password              String?                 @db.VarChar(70)
+  created_at            DateTime                @default(now()) @db.Timestamp(0)
+  updated_at            DateTime                @default(now()) @db.DateTime(0)
+  users_has_credentials users_has_credentials[]
+}
+
+model keys {
+  id   Int     @default(autoincrement())
+  kid  String  @db.VarChar(100)
+  type String  @db.VarChar(7)
+  kty  String  @db.VarChar(10)
+  n    String  @db.VarChar(360)
+  e    String  @db.VarChar(4)
+  d    String? @db.VarChar(360)
+  p    String? @db.VarChar(200)
+  q    String? @db.VarChar(200)
+  dp   String? @db.VarChar(200)
+  dq   String? @db.VarChar(200)
+  qi   String? @db.VarChar(200)
+  alg  String  @db.VarChar(5)
+
+  @@id([id, kid])
+}
+
+model permissions {
+  id                    Int                     @id @default(autoincrement())
+  permission_name       String?                 @db.VarChar(45)
+  roles_has_permissions roles_has_permissions[]
+}
+
+model products {
+  id          Int      @default(autoincrement())
+  productname String?  @db.VarChar(45)
+  sku         String   @db.VarChar(11)
+  price       Decimal? @db.Decimal(6, 2)
+
+  @@id([id, sku])
+}
+
+model roles {
+  id                    Int                     @id @default(autoincrement())
+  role_name             String?                 @unique(map: "role_name_UNIQUE") @db.VarChar(45)
+  roles_has_permissions roles_has_permissions[]
+  users_has_roles       users_has_roles[]
+}
+
+model roles_has_permissions {
+  roles_id       Int
+  permissions_id Int
+  permissions    permissions @relation(fields: [permissions_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_roles_has_permissions_permissions1")
+  roles          roles       @relation(fields: [roles_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_roles_has_permissions_roles1")
+
+  @@id([roles_id, permissions_id])
+  @@index([permissions_id], map: "fk_roles_has_permissions_permissions1_idx")
+  @@index([roles_id], map: "fk_roles_has_permissions_roles1_idx")
+}
+
+model users {
+  id                    Int                     @id @default(autoincrement())
+  created_at            DateTime                @default(now()) @db.Timestamp(0)
+  updated_at            DateTime                @default(now()) @db.DateTime(0)
+  firstname             String?                 @db.VarChar(45)
+  lastname              String?                 @db.VarChar(45)
+  users_has_credentials users_has_credentials[]
+  users_has_roles       users_has_roles[]
+}
+
+model users_has_credentials {
+  users_id       Int
+  credentials_id Int
+  credentials    credentials @relation(fields: [credentials_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_credentials_credentials1")
+  users          users       @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_credentials_users")
+
+  @@id([users_id, credentials_id])
+  @@index([credentials_id], map: "fk_users_has_credentials_credentials1_idx")
+  @@index([users_id], map: "fk_users_has_credentials_users_idx")
+}
+
+model users_has_roles {
+  users_id Int
+  roles_id Int
+  roles    roles @relation(fields: [roles_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_roles_roles1")
+  users    users @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_roles_users1")
+
+  @@id([users_id, roles_id])
+  @@index([roles_id], map: "fk_users_has_roles_roles1_idx")
+  @@index([users_id], map: "fk_users_has_roles_users1_idx")
+}
