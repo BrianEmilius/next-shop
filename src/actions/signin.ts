@@ -9,6 +9,7 @@ import { redirect } from "next/navigation"
 export default async function signin(prevState: any, formData: FormData) {
 	const identifier = formData.get("identifier")
 	const password = formData.get("password")
+	const fingerprint = formData.get("fingerprint")
 
 	const schema = z.object({
 		identifier: z.string().min(1),
@@ -25,14 +26,6 @@ export default async function signin(prevState: any, formData: FormData) {
 	}
 
 	const prisma = new PrismaClient()
-	/* const credentials = await prisma.credentials.findFirst({
-		where: {
-			identifier: validated.data.identifier
-		},
-		include: {
-			users_has_credentials: true
-		}
-	}) */
 
 	const user = await prisma.credentials.findFirst({
 		where: {
@@ -104,13 +97,11 @@ export default async function signin(prevState: any, formData: FormData) {
 		permissions: permissions.map(perm => perm.permission_name)
 	}
 
-	console.log("payload", payload)
-
 	const jwt = new SignJWT(payload)
 		.setProtectedHeader({
 			alg: "RS256",
 			kid: privateKey.kid,
-			jku: "http://localhost:3000/api/jwks.json",
+			jku: "http://localhost:3001/api/jwks.json",
 		})
 		.setAudience(payload.userId)
 		.setIssuedAt()
@@ -120,5 +111,12 @@ export default async function signin(prevState: any, formData: FormData) {
 	const cookieStore = await cookies()
 	const date = new Date()
 	cookieStore.set("shop_token", await jwt, { expires: date.setTime(date.getTime() + (60 * 60 * 1000)) })
+
+	const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  const sessionID = btoa(String.fromCharCode(...array))
+
+	cookieStore.set("shop_sid", sessionID, { expires: date.setTime(date.getTime() + (1000 * 60 * 60 * 24 * 30)) })
+
 	redirect("/")
 }

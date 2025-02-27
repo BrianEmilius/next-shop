@@ -1,13 +1,19 @@
 "use client"
 
 import signin from "@/actions/signin"
-import { useActionState, useEffect } from "react"
-import { Label } from "./ui/label"
-import { Input } from "./ui/input"
-import { Button } from "./ui/button"
+import { useActionState, useEffect, useState } from "react"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import generateFingerprint from "@/lib/fingerprint"
 
 export default function SigninForm() {
 	const [formState, formAction, isPending] = useActionState(signin, null)
+	const [fingerprint, setFingerprint] = useState<string | null>(null)
+
+	useEffect(function () {
+		generateFingerprint().then(setFingerprint)
+	}, [fingerprint])
 
 	useEffect(function () {
 		console.log("formState", formState)
@@ -26,6 +32,7 @@ export default function SigninForm() {
 			<Button type="submit" disabled={isPending} className="disabled:bg-gray-500">
 				{isPending ? "Signing you in..." : "Sign in"}
 			</Button>
+			<input type="hidden" name="fingerprint" value={fingerprint ?? ""} />
 		</form>
 	)
 }

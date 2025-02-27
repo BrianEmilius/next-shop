@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server"
 export async function middleware(request: NextRequest) {
 	if (request.nextUrl.pathname.includes("/admin")) {
 		if (!request.cookies.has("shop_token"))
-			return NextResponse.redirect(new URL("/", request.url))
+			return NextResponse.redirect(new URL("/signin", request.url))
 		if (!(await verifyToken((request.cookies.get("shop_token"))!.value)))
 			return NextResponse.redirect(new URL("/", request.url))
 	}

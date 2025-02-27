@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client"
 import { z } from "zod"
 
 export default async function createRole(prevState: any, formData: FormData) {
-	if (!(await isPermitted("write:roles"))) {
+	if (!(await isPermitted("create:roles"))) {
 		return {
 			_errors: ["You do not have permission to perform this action"]
 		}

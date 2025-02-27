@@ -1,34 +1,27 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useActionState, useEffect, useState } from "react"
 import { Button } from "./ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
-import { Separator } from "./ui/separator"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
+import editRole from "@/actions/edit-role"
 
 export default function EditRole({ role, permissions }: Readonly<{ role: Role, permissions: Array<T> }>) {
-	const [assignedPerms, setAssignedPerms] = useState(role.roles_has_permissions.flatMap(rolePerm => rolePerm.permissions))
-	const [allPerms, setAllPerms] = useState(permissions.filter(permItem => !assignedPerms.some(assItem => assItem.permission_name === permItem.permission_name)))
-	const allRef = useRef(null)
-	const assignedRef = useRef(null)
-
-	async function assign() {
-		//console.log("test", allRef.current.selectedOptions)
-		Array.from(allRef.current.selectedOptions).forEach(selectedOption => setAssignedPerms(prev => [...prev, JSON.parse(selectedOption.value)]))
-		//setAssignedPerms(prev => [...prev, allRef])
-	}
-
-	async function remove() { }
+	const [formState, formAction, isPending] = useActionState(editRole, null)
+	const [open, setOpen] = useState(false)
 
 	useEffect(function () {
-		//console.log("remaining permissions for ", role.role_name, permissions.filter(perm => assignedPerms.some(perm.permission_name)))
-		//console.log("assignedPerms for ", role.role_name, assignedPerms)
-		//console.log("test for ", role.role_name, permissions.filter(permItem => !assignedPerms.some(assItem => assItem.permission_name === permItem.permission_name)))
-	}, [])
+		console.log("formState", formState)
+		if (formState?.success) {
+			setOpen(false)
+		}
+	}, [formState])
 
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button>Edit</Button>
 			</DialogTrigger>
@@ -37,9 +30,9 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 					<DialogTitle>
 						Edit Role
 					</DialogTitle>
-					<DialogDescription>Something</DialogDescription>
+					<DialogDescription>Add or remove permissions for this role</DialogDescription>
 				</DialogHeader>
-				<form>
+				<form action={formAction}>
 					<div>
 						<Label>
 							Role name
@@ -47,29 +40,16 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 						</Label>
 					</div>
 					<Separator className="my-4" />
-					<div className="flex gap-4">
-						<Label>
-							Assigned permissions
-							<select name="assigned_perms" multiple={true} className="w-full" ref={assignedRef}>
-								{assignedPerms.map(perm => (
-									<option key={perm.permission_name} value={JSON.stringify(perm)}>{perm.permission_name}</option>
-								))}
-							</select>
-						</Label>
-						<div className="flex flex-col justify-center">
-							<Button type="button" onClick={assign}>&lt;&lt;</Button>
-							<Button type="button" onClick={remove}>&gt;&gt;</Button>
-						</div>
-						<Label>
-							All permissions
-							<select name="all_perms" multiple={true} className="w-full" ref={allRef}>
-								{allPerms.map(perm => (
-									<option key={perm.permission_name} value={JSON.stringify(perm)}>{perm.permission_name}</option>
-								))}
-							</select>
-						</Label>
+					<div>
+						{permissions.map(perm => (
+							<Label key={perm.permission_name} className="w-full flex items-center gap-4 mb-2">
+								<Checkbox name="permissions" value={perm.id} defaultChecked={role.roles_has_permissions.some(rolePerm => rolePerm.permissions_id === perm.id)} />
+								{perm.permission_name}
+							</Label>
+						))}
 					</div>
 					<Button type="submit">Save role</Button>
+					<input type="hidden" name="role_id" value={role.id} />
 				</form>
 			</DialogContent>
 		</Dialog>

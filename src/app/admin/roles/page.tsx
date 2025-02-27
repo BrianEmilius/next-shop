@@ -16,7 +16,7 @@ export default async function RolesPage() {
 			}
 		}
 	})
-
+	
 	const permissions = await prisma.permissions.findMany()
 
 	return (
