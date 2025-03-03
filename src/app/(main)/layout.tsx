@@ -4,9 +4,17 @@ import SiteBreadcrumbs from "@/components/site-breadcrumbs"
 import Container from "@/components/ui/container"
 import { Input } from "@/components/ui/input"
 import SiteHeader from "@/components/ui/site-header"
+import { cookies } from "next/headers"
 import Link from "next/link"
 
 export default async function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+	const cookieStore = await cookies()
+	const tokenCookie = cookieStore.get("shop_token")
+	const sidCookie = cookieStore.get("shop_sid")
+
+	if (tokenCookie && sidCookie) {
+		
+	}
 
 	return (
 		<>
@@ -42,7 +50,7 @@ export default async function MainLayout({ children }: Readonly<{ children: Reac
 				</Container>
 			</SiteHeader>
 			<SiteBreadcrumbs />
-			<Container className="grid grid-cols-[1fr_4fr]">
+			<Container className="grid grid-cols-[1fr_4fr] gap-4">
 				<SecondaryNavigation />
 				<main>
 					{children}

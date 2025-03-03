@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model categories {
+  id                      Int                       @id @default(autoincrement())
+  category_name           String?                   @unique(map: "category_name_UNIQUE") @db.VarChar(45)
+  products_has_categories products_has_categories[]
+}
+
 model credentials {
   id                    Int                     @id @default(autoincrement())
   type                  String                  @db.VarChar(45)
@@ -42,12 +48,36 @@ model permissions {
 }
 
 model products {
-  id          Int      @default(autoincrement())
-  productname String?  @db.VarChar(45)
-  sku         String   @db.VarChar(11)
-  price       Decimal? @db.Decimal(6, 2)
+  id                      Int                       @unique(map: "id_UNIQUE") @default(autoincrement())
+  productname             String?                   @db.VarChar(45)
+  sku                     String                    @unique(map: "sku_UNIQUE") @db.VarChar(11)
+  price                   Decimal?                  @db.Decimal(6, 2)
+  products_has_categories products_has_categories[]
+  products_has_tags       products_has_tags[]
 
   @@id([id, sku])
+}
+
+model products_has_categories {
+  products_id   Int
+  categories_id Int
+  categories    categories @relation(fields: [categories_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_categories_categories1")
+  products      products   @relation(fields: [products_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_categories_products1")
+
+  @@id([products_id, categories_id])
+  @@index([categories_id], map: "fk_products_has_categories_categories1_idx")
+  @@index([products_id], map: "fk_products_has_categories_products1_idx")
+}
+
+model products_has_tags {
+  products_id Int
+  tags_id     Int
+  products    products @relation(fields: [products_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_products1")
+  tags        tags     @relation(fields: [tags_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_tags1")
+
+  @@id([products_id, tags_id])
+  @@index([products_id], map: "fk_products_has_tags_products1_idx")
+  @@index([tags_id], map: "fk_products_has_tags_tags1_idx")
 }
 
 model roles {
@@ -68,6 +98,21 @@ model roles_has_permissions {
   @@index([roles_id], map: "fk_roles_has_permissions_roles1_idx")
 }
 
+model tags {
+  id                Int                 @id @default(autoincrement())
+  tag_name          String?             @unique(map: "tag_name_UNIQUE") @db.VarChar(45)
+  products_has_tags products_has_tags[]
+}
+
+model tokens {
+  id               Int                @id @default(autoincrement())
+  sid              String?            @db.VarChar(45)
+  fingerprint      String?            @db.VarChar(90)
+  token            String?            @unique(map: "token_UNIQUE") @db.VarChar(800)
+  created_at       DateTime?          @default(now()) @db.Timestamp(0)
+  users_has_tokens users_has_tokens[]
+}
+
 model users {
   id                    Int                     @id @default(autoincrement())
   created_at            DateTime                @default(now()) @db.Timestamp(0)
@@ -76,6 +121,7 @@ model users {
   lastname              String?                 @db.VarChar(45)
   users_has_credentials users_has_credentials[]
   users_has_roles       users_has_roles[]
+  users_has_tokens      users_has_tokens[]
 }
 
 model users_has_credentials {
@@ -98,4 +144,15 @@ model users_has_roles {
   @@id([users_id, roles_id])
   @@index([roles_id], map: "fk_users_has_roles_roles1_idx")
   @@index([users_id], map: "fk_users_has_roles_users1_idx")
+}
+
+model users_has_tokens {
+  users_id  Int
+  tokens_id Int
+  tokens    tokens @relation(fields: [tokens_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_tokens_tokens1")
+  users     users  @relation(fields: [users_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_has_tokens_users1")
+
+  @@id([users_id, tokens_id])
+  @@index([tokens_id], map: "fk_users_has_tokens_tokens1_idx")
+  @@index([users_id], map: "fk_users_has_tokens_users1_idx")
 }

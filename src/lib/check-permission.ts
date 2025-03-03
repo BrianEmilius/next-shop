@@ -1,7 +1,7 @@
 "use server"
 
-import { verifyToken } from "@/middleware"
 import { cookies } from "next/headers"
+import { verifyToken } from "@/lib/token"
 
 export default async function isPermitted(permission: string) {
 	const cookieStore = await cookies()

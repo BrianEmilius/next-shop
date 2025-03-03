@@ -1,10 +1,10 @@
 "use client"
 
 import { useActionState, useEffect } from "react"
-import { Button } from "./ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Input } from "./ui/input"
-import { Label } from "./ui/label"
+import { Button } from "../ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Input } from "../ui/input"
+import { Label } from "../ui/label"
 import createRole from "@/actions/create-role"
 
 export default function AddRole() {

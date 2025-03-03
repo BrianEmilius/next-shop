@@ -1,4 +1,4 @@
-import SigninForm from "@/components/signin-form"
+import SigninForm from "@/components/forms/signin-form"
 import Heading from "@/components/typography/heading"
 import Link from "next/link"
 

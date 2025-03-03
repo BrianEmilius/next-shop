@@ -101,20 +101,46 @@ export default async function signin(prevState: any, formData: FormData) {
 		.setProtectedHeader({
 			alg: "RS256",
 			kid: privateKey.kid,
-			jku: "http://localhost:3001/api/jwks.json",
+			jku: "http://localhost:3000/api/jwks.json",
 		})
 		.setAudience(payload.userId)
 		.setIssuedAt()
-		.setExpirationTime("1h")
+		.setExpirationTime("10m")
+		.sign(await importJWK(privateKey))
+
+	const refresh_token = new SignJWT({ userId: String(currentUser.id), identifier: validated.data.identifier, fingerprint })
+		.setProtectedHeader({
+			alg: "RS256",
+			kid: privateKey.kid,
+			jku: "http://localhost:3000/api/jwks.json",
+		})
+		.setAudience(payload.userId)
+		.setIssuedAt()
+		.setExpirationTime("30d")
 		.sign(await importJWK(privateKey))
 
 	const cookieStore = await cookies()
 	const date = new Date()
-	cookieStore.set("shop_token", await jwt, { expires: date.setTime(date.getTime() + (60 * 60 * 1000)) })
+	cookieStore.set("shop_token", await jwt)
 
 	const array = new Uint8Array(32);
   crypto.getRandomValues(array);
   const sessionID = btoa(String.fromCharCode(...array))
+
+	const savedToken = await prisma.tokens.create({
+		data: {
+			token: await refresh_token,
+			sid: sessionID,
+			fingerprint,
+			users_has_tokens: {
+				create: {
+					users_id: currentUser.id
+				}
+			}
+		}
+	})
+
+	console.log(savedToken)
 
 	cookieStore.set("shop_sid", sessionID, { expires: date.setTime(date.getTime() + (1000 * 60 * 60 * 24 * 30)) })
 

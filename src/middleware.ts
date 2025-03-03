@@ -1,7 +1,12 @@
-import { decodeProtectedHeader, importJWK, JWK, jwtVerify } from "jose"
 import { NextResponse, type NextRequest } from "next/server"
+import { verifyToken } from "@/lib/token"
 
 export async function middleware(request: NextRequest) {
+	if (request.nextUrl.pathname.includes("/profile")) {
+		if (!request.cookies.has("shop_token") || !(await verifyToken((request.cookies.get("shop_token"))!.value)))
+			return NextResponse.redirect(new URL("/signin", request.url))
+	}
+
 	if (request.nextUrl.pathname.includes("/admin")) {
 		if (!request.cookies.has("shop_token"))
 			return NextResponse.redirect(new URL("/signin", request.url))
@@ -11,12 +16,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/admin/:path*"]
-}
-
-export async function verifyToken(token: string) {
-	const protectedHeader = decodeProtectedHeader(token)
-	const response = await fetch(String(protectedHeader.jku))
-	const jwks = await response.json()
-	return await jwtVerify(token, await importJWK(jwks.keys.find((key: JWK) => key.kid === protectedHeader.kid)))
+	matcher: ["/admin/:path*", "/profile/:path*"]
 }

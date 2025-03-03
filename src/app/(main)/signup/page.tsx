@@ -1,4 +1,4 @@
-import SignupForm from "@/components/signup-form"
+import SignupForm from "@/components/forms/signup-form"
 import Heading from "@/components/typography/heading"
 
 export default function RegisterPage() {
