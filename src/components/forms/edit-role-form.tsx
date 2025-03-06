@@ -24,7 +24,7 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
 			<SheetTrigger asChild>
-				<Button aria-label="Edit" title="Edit">
+				<Button aria-label="Edit" title="Edit" className="bg-transparent text-black hover:bg-transparent active:bg-transparent">
 					<LucideEdit />
 				</Button>
 			</SheetTrigger>
@@ -37,7 +37,7 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 				</SheetHeader>
 				<form action={formAction}>
 					<div>
-						<Label>
+						<Label className="flex flex-col gap-2">
 							Role name
 							<Input type="text" name="role_name" defaultValue={role.role_name} />
 						</Label>

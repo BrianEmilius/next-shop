@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect } from "react"
 import { Button } from "../ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import createRole from "@/actions/create-role"
@@ -25,11 +25,14 @@ export default function AddRole() {
 						<DialogTitle>
 							Add New Role
 						</DialogTitle>
+						<DialogDescription>
+							Enter the name of the new role. Role names must be unique.
+						</DialogDescription>
 					</DialogHeader>
 					<form action={formAction}>
-						<div>
-							<Label>
-								Role Name
+						<div className="mb-4">
+							<Label className="flex flex-col gap-2">
+								<span>Role Name</span>
 								<Input type="text" name="role_name" />
 							</Label>
 						</div>

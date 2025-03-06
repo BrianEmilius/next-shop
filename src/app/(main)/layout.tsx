@@ -42,7 +42,7 @@ export default async function MainLayout({ children }: Readonly<{ children: Reac
 								<Link href="/">Link 1</Link>
 							</li>
 							<li>
-								<Link href="/admin">Admin</Link>
+								<Link href="/dashboard">Dashboard</Link>
 							</li>
 							<li>
 								<Link href="/test">Test</Link>
