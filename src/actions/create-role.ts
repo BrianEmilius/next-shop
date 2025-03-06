@@ -1,6 +1,6 @@
 "use server"
 
-import isPermitted from "@/lib/check-permission"
+import { isPermitted } from "@/lib/permission"
 import { PrismaClient } from "@prisma/client"
 import { z } from "zod"
 
@@ -23,11 +23,9 @@ export default async function createRole(prevState: any, formData: FormData) {
 		const prisma = new PrismaClient()
 		const role = await prisma.roles.create({
 			data: {
-				role_name
+				role_name: validated.data
 			}
 		})
-
-		console.log("role", role)
 
 		return {
 			success: true

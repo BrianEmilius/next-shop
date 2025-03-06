@@ -4,17 +4,14 @@ import SiteBreadcrumbs from "@/components/site-breadcrumbs"
 import Container from "@/components/ui/container"
 import { Input } from "@/components/ui/input"
 import SiteHeader from "@/components/ui/site-header"
+import { getSiteConfig } from "@/lib/site-config"
 import { cookies } from "next/headers"
 import Link from "next/link"
 
 export default async function MainLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	const cookieStore = await cookies()
-	const tokenCookie = cookieStore.get("shop_token")
-	const sidCookie = cookieStore.get("shop_sid")
-
-	if (tokenCookie && sidCookie) {
-		
-	}
+	const sidCookie = cookieStore.has("shop_sid")
+	const site_config = await getSiteConfig()
 
 	return (
 		<>
@@ -24,13 +21,18 @@ export default async function MainLayout({ children }: Readonly<{ children: Reac
 						<li>
 							<CartPopover />
 						</li>
-						<li>
-							<Link href="/signin">Sign in</Link>
-						</li>
+						{sidCookie
+							? (<li>
+								<Link href="/profile">Profile</Link>
+							</li>)
+							: (<li>
+								<Link href="/signin">Sign in</Link>
+							</li>)
+						}
 					</ul>
 				</Container>
 				<Container className="flex justify-between">
-					<Link href="/">My Shop</Link>
+					<Link href="/">{site_config.site_name}</Link>
 					<nav>
 						<ul className="flex gap-4">
 							<li>

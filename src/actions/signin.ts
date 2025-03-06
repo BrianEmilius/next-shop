@@ -3,8 +3,10 @@ import { PrismaClient } from "@prisma/client"
 import { z } from "zod"
 import bcrypt from "bcrypt"
 import { cookies } from "next/headers"
-import { importJWK, SignJWT } from "jose"
 import { redirect } from "next/navigation"
+import { generateToken } from "@/lib/token"
+import { getUserByIdentifier } from "@/lib/user"
+import { getPermissionsForUser } from "@/lib/permission"
 
 export default async function signin(prevState: any, formData: FormData) {
 	const identifier = formData.get("identifier")
@@ -13,48 +15,21 @@ export default async function signin(prevState: any, formData: FormData) {
 
 	const schema = z.object({
 		identifier: z.string().min(1),
-		password: z.string().min(1)
+		password: z.string().min(1),
+		fingerprint: z.string().min(10)
 	})
 
 	const validated = schema.safeParse({
 		identifier,
-		password
+		password,
+		fingerprint
 	})
 
 	if (!validated.success) {
 		return validated.error.format()
 	}
 
-	const prisma = new PrismaClient()
-
-	const user = await prisma.credentials.findFirst({
-		where: {
-			identifier: validated.data.identifier
-		},
-		include: {
-			users_has_credentials: {
-				include: {
-					users: {
-						include: {
-							users_has_roles: {
-								include: {
-									roles: {
-										include: {
-											roles_has_permissions: {
-												include: { permissions: true }
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	})
-
-
+	const user = await getUserByIdentifier(validated.data.identifier)
 
 	if (!user) {
 		return {
@@ -68,70 +43,32 @@ export default async function signin(prevState: any, formData: FormData) {
 		}
 	}
 
-	const privateKey = await prisma.keys.findFirst({
-		where: {
-			type: "private"
-		},
-		orderBy: {
-			id: "desc"
-		},
-		omit: {
-			id: true,
-			type: true,
-		}
-	})
-
-	if (privateKey === null) {
-		throw new Error("JWT Signing: No private key found")
-	}
-
 	const currentUser = user.users_has_credentials[0].users
-	const permissions = currentUser.users_has_roles.flatMap(
-		userRole => userRole.roles.roles_has_permissions.map(
-			rolePermission => rolePermission.permissions
-		)
-	)
+	const permissions = await getPermissionsForUser(currentUser)
 
 	const payload = {
 		userId: String(currentUser.id),
-		permissions: permissions.map(perm => perm.permission_name)
+		permissions
 	}
 
-	const jwt = new SignJWT(payload)
-		.setProtectedHeader({
-			alg: "RS256",
-			kid: privateKey.kid,
-			jku: "http://localhost:3000/api/jwks.json",
-		})
-		.setAudience(payload.userId)
-		.setIssuedAt()
-		.setExpirationTime("10m")
-		.sign(await importJWK(privateKey))
-
-	const refresh_token = new SignJWT({ userId: String(currentUser.id), identifier: validated.data.identifier, fingerprint })
-		.setProtectedHeader({
-			alg: "RS256",
-			kid: privateKey.kid,
-			jku: "http://localhost:3000/api/jwks.json",
-		})
-		.setAudience(payload.userId)
-		.setIssuedAt()
-		.setExpirationTime("30d")
-		.sign(await importJWK(privateKey))
+	const jwt = await generateToken({ payload, expiration: "10m" })
+	const refresh_token = await generateToken({ payload: { userId: String(currentUser.id), identifier: validated.data.identifier, fingerprint }, expiration: "30d" })
 
 	const cookieStore = await cookies()
 	const date = new Date()
-	cookieStore.set("shop_token", await jwt)
+	cookieStore.set("shop_token", jwt)
 
 	const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  const sessionID = btoa(String.fromCharCode(...array))
+	crypto.getRandomValues(array);
+	const sessionID = btoa(String.fromCharCode(...array))
 
-	const savedToken = await prisma.tokens.create({
+	const prisma = new PrismaClient()
+
+	await prisma.tokens.create({
 		data: {
-			token: await refresh_token,
+			token: refresh_token,
 			sid: sessionID,
-			fingerprint,
+			fingerprint: validated.data.fingerprint,
 			users_has_tokens: {
 				create: {
 					users_id: currentUser.id
@@ -140,7 +77,7 @@ export default async function signin(prevState: any, formData: FormData) {
 		}
 	})
 
-	console.log(savedToken)
+	prisma.$disconnect()
 
 	cookieStore.set("shop_sid", sessionID, { expires: date.setTime(date.getTime() + (1000 * 60 * 60 * 24 * 30)) })
 

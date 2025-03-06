@@ -1,23 +1,48 @@
 import Link from "next/link"
-import Heading from "../typography/heading"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, } from "./sidebar"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenuButton, } from "./sidebar"
+import { LucideAlbum, LucideCircleArrowLeft, LucideUserCog } from "lucide-react"
+import AdminNavGroups from "./admin-nav-group"
+
+const groups = [
+	{
+		title: "Admin Options",
+		items: [
+			{
+				title: "User Management",
+				icon: <LucideUserCog />,
+				items: [
+					{
+						title: "Roles",
+						href: "/admin/roles"
+					}, {
+						title: "Users",
+						href: "/admin/users"
+					}
+				]
+			}
+		]
+	}
+]
 
 export default function AppSidebar() {
 	return (
-		<Sidebar className="">
+		<Sidebar className="" collapsible="icon">
 			<SidebarHeader>
-				<Heading>My Shop</Heading>
+				<SidebarMenuButton>
+					<LucideAlbum className="text-2xl" />
+					<Link href="/admin" className="w-full">
+						Dashboard
+					</Link>
+				</SidebarMenuButton>
 			</SidebarHeader>
 			<SidebarContent>
-				<SidebarGroup>
-					<Link href="/admin/roles">Roles</Link>
-				</SidebarGroup>
-				<SidebarGroup>
-					Something
-				</SidebarGroup>
+				<AdminNavGroups groups={groups} />
 			</SidebarContent>
 			<SidebarFooter>
-				Footer
+				<SidebarMenuButton>
+					<LucideCircleArrowLeft />
+					<Link href="/">Back to website</Link>
+				</SidebarMenuButton>
 			</SidebarFooter>
 		</Sidebar>
 	)

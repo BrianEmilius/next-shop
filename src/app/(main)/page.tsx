@@ -1,6 +1,11 @@
 import Heading from "@/components/typography/heading"
 import { PrismaClient } from "@prisma/client"
+import { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Home"
+}
 
 export default async function Home() {
   const prisma = new PrismaClient()
@@ -14,10 +19,10 @@ export default async function Home() {
       <Heading>Snacks</Heading>
       {products.map((product) => (
         <Link href={"/product/" + product.sku} key={product.id}>
-        <div>
-          <h2>{product.productname}</h2>
-          <p>{Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(product.price))}</p>
-        </div>
+          <div>
+            <h2>{product.productname}</h2>
+            <p>{Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(Number(product.price))}</p>
+          </div>
         </Link>
       ))}
     </>

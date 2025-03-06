@@ -2,36 +2,39 @@
 
 import { useActionState, useEffect, useState } from "react"
 import { Button } from "../ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import editRole from "@/actions/edit-role"
+import { type Role, type Permission } from "@/types/access-controls"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet"
+import { LucideEdit } from "lucide-react"
 
-export default function EditRole({ role, permissions }: Readonly<{ role: Role, permissions: Array<T> }>) {
+export default function EditRole({ role, permissions }: Readonly<{ role: Role, permissions: Array<Permission> }>) {
 	const [formState, formAction, isPending] = useActionState(editRole, null)
 	const [open, setOpen] = useState(false)
 
 	useEffect(function () {
-		console.log("formState", formState)
 		if (formState?.success) {
 			setOpen(false)
 		}
 	}, [formState])
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button>Edit</Button>
-			</DialogTrigger>
-			<DialogContent>
-				<DialogHeader>
-					<DialogTitle>
+		<Sheet open={open} onOpenChange={setOpen}>
+			<SheetTrigger asChild>
+				<Button aria-label="Edit" title="Edit">
+					<LucideEdit />
+				</Button>
+			</SheetTrigger>
+			<SheetContent>
+				<SheetHeader>
+					<SheetTitle>
 						Edit Role
-					</DialogTitle>
-					<DialogDescription>Add or remove permissions for this role</DialogDescription>
-				</DialogHeader>
+					</SheetTitle>
+					<SheetDescription>Add or remove permissions for this role</SheetDescription>
+				</SheetHeader>
 				<form action={formAction}>
 					<div>
 						<Label>
@@ -51,14 +54,7 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 					<Button type="submit">Save role</Button>
 					<input type="hidden" name="role_id" value={role.id} />
 				</form>
-			</DialogContent>
-		</Dialog>
+			</SheetContent>
+		</Sheet>
 	)
 }
-
-interface Role {
-	id: number
-	role_name: string
-}
-
-interface Permissions { }

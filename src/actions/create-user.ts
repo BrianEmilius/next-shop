@@ -21,14 +21,14 @@ export default async function createUser(prevState: any, formData: FormData) {
 		return validated.error.format()
 	}
 
-	const hashedPassword = await bcrypt.hash(password, 10)
+	const hashedPassword = await bcrypt.hash(validated.data.password, 10)
 	const prisma = new PrismaClient()
 
 	try {
 		const credentials = await prisma.credentials.create({
 			data: {
 				type: "local",
-				identifier: username,
+				identifier: validated.data.username,
 				password: hashedPassword
 			}
 		})
@@ -51,5 +51,4 @@ export default async function createUser(prevState: any, formData: FormData) {
 
 		throw error
 	}
-
 }

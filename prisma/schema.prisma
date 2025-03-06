@@ -16,7 +16,7 @@ model categories {
 model credentials {
   id                    Int                     @id @default(autoincrement())
   type                  String                  @db.VarChar(45)
-  identifier            String                  @db.VarChar(45)
+  identifier            String                  @unique(map: "identifier_UNIQUE") @db.VarChar(45)
   password              String?                 @db.VarChar(70)
   created_at            DateTime                @default(now()) @db.Timestamp(0)
   updated_at            DateTime                @default(now()) @db.DateTime(0)
@@ -43,14 +43,14 @@ model keys {
 
 model permissions {
   id                    Int                     @id @default(autoincrement())
-  permission_name       String?                 @db.VarChar(45)
+  permission_name       String                  @unique(map: "permission_name_UNIQUE") @db.VarChar(45)
   roles_has_permissions roles_has_permissions[]
 }
 
 model products {
-  id                      Int                       @unique(map: "id_UNIQUE") @default(autoincrement())
+  id                      Int                       @default(autoincrement())
   productname             String?                   @db.VarChar(45)
-  sku                     String                    @unique(map: "sku_UNIQUE") @db.VarChar(11)
+  sku                     String                    @db.VarChar(11)
   price                   Decimal?                  @db.Decimal(6, 2)
   products_has_categories products_has_categories[]
   products_has_tags       products_has_tags[]
@@ -60,29 +60,31 @@ model products {
 
 model products_has_categories {
   products_id   Int
+  products_sku  String     @db.VarChar(11)
   categories_id Int
   categories    categories @relation(fields: [categories_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_categories_categories1")
-  products      products   @relation(fields: [products_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_categories_products1")
+  products      products   @relation(fields: [products_id, products_sku], references: [id, sku], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_categories_products1")
 
-  @@id([products_id, categories_id])
+  @@id([products_id, products_sku, categories_id])
   @@index([categories_id], map: "fk_products_has_categories_categories1_idx")
-  @@index([products_id], map: "fk_products_has_categories_products1_idx")
+  @@index([products_id, products_sku], map: "fk_products_has_categories_products1_idx")
 }
 
 model products_has_tags {
-  products_id Int
-  tags_id     Int
-  products    products @relation(fields: [products_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_products1")
-  tags        tags     @relation(fields: [tags_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_tags1")
+  products_id  Int
+  products_sku String   @db.VarChar(11)
+  tags_id      Int
+  products     products @relation(fields: [products_id, products_sku], references: [id, sku], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_products1")
+  tags         tags     @relation(fields: [tags_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_has_tags_tags1")
 
-  @@id([products_id, tags_id])
-  @@index([products_id], map: "fk_products_has_tags_products1_idx")
+  @@id([products_id, products_sku, tags_id])
+  @@index([products_id, products_sku], map: "fk_products_has_tags_products1_idx")
   @@index([tags_id], map: "fk_products_has_tags_tags1_idx")
 }
 
 model roles {
   id                    Int                     @id @default(autoincrement())
-  role_name             String?                 @db.VarChar(45)
+  role_name             String?                 @unique(map: "role_name_UNIQUE") @db.VarChar(45)
   roles_has_permissions roles_has_permissions[]
   users_has_roles       users_has_roles[]
 }
@@ -155,4 +157,10 @@ model users_has_tokens {
   @@id([users_id, tokens_id])
   @@index([tokens_id], map: "fk_users_has_tokens_tokens1_idx")
   @@index([users_id], map: "fk_users_has_tokens_users1_idx")
+}
+
+model site_config {
+  id           Int     @id @default(autoincrement())
+  site_name    String? @db.VarChar(100)
+  site_tagline String? @db.VarChar(100)
 }

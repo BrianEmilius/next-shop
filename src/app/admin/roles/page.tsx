@@ -3,11 +3,12 @@ import EditRole from "@/components/forms/edit-role-form"
 import Heading from "@/components/typography/heading"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { PrismaClient } from "@prisma/client"
+import { type Role } from "@/types/access-controls"
 
 export default async function RolesPage() {
 	const prisma = new PrismaClient()
 
-	const roles = await prisma.roles.findMany({
+	const roles: Array<Role> = await prisma.roles.findMany({
 		include: {
 			roles_has_permissions: {
 				include: {
@@ -16,7 +17,7 @@ export default async function RolesPage() {
 			}
 		}
 	})
-	
+
 	const permissions = await prisma.permissions.findMany()
 
 	return (
@@ -31,7 +32,7 @@ export default async function RolesPage() {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{roles.map(role => (
+					{roles.map((role) => (
 						<TableRow key={role.role_name}>
 							<TableCell>{role.role_name}</TableCell>
 							<TableCell><EditRole role={role} permissions={permissions} /></TableCell>

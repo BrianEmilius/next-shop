@@ -1,6 +1,6 @@
 "use server"
 
-import isPermitted from "@/lib/check-permission"
+import { isPermitted } from "@/lib/permission"
 import { PrismaClient } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
@@ -13,7 +13,6 @@ export default async function editRole(prevState: any, formData: FormData) {
 
 	const role_name = formData.get("role_name") as string
 	const role_id = formData.get("role_id") as string
-
 	const permissions = formData.getAll("permissions") as string[]
 
 	const prisma = new PrismaClient()
@@ -22,32 +21,46 @@ export default async function editRole(prevState: any, formData: FormData) {
 		where: { id: parseInt(role_id) },
 		include: { roles_has_permissions: true }
 	})
-	
+
 	if (!role) {
 		return {
 			_errors: ["Role not found"]
 		}
 	}
 
-	await prisma.roles.update({
-		where: { id: parseInt(role_id) },
-		data: {
-			role_name
+	try {
+		await prisma.roles.update({
+			where: { id: parseInt(role_id) },
+			data: {
+				role_name
+			}
+		})
+	} catch (error) {
+		console.log(error)
+		return {
+			_errors: ["idk"]
 		}
-	})
+	}
 
-	await prisma.roles_has_permissions.deleteMany({
-		where: {
-			roles_id: role.id
+	try {
+		await prisma.roles_has_permissions.deleteMany({
+			where: {
+				roles_id: role.id
+			}
+		})
+
+		await prisma.roles_has_permissions.createMany({
+			data: permissions.map((permission) => ({
+				roles_id: role.id,
+				permissions_id: parseInt(permission)
+			}))
+		})
+	} catch (error) {
+		console.log(error)
+		return {
+			_errors: ["idk idk"]
 		}
-	})
-
-	await prisma.roles_has_permissions.createMany({
-		data: permissions.map((permission) => ({
-			roles_id: role.id,
-			permissions_id: parseInt(permission)
-		}))
-	})
+	}
 
 	revalidatePath("/admin/roles")
 
