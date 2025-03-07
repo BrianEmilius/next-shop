@@ -22,21 +22,5 @@ export async function isPermitted(permission: string) {
 }
 
 export async function getPermissionsForUser(user: any) {
-	const permissions = user!.users_has_roles.flatMap(
-		(userRole: { roles: { roles_has_permissions: any[] } }) => userRole.roles.roles_has_permissions.map(
-			rolePermission => rolePermission.permissions
-		)
-	)
-
-	return permissions.map((perm: Permission) => perm.permission_name)
-}
-/* 
-interface User {
-	id: number
-	users_has_roles: Array<object>
-} */
-
-interface Permission {
-	id: number
-	permission_name: string
+	return user.roles.flatMap(role => role.permissions).map(permission => permission.permission_name)
 }

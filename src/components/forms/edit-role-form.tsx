@@ -16,6 +16,8 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 	const [open, setOpen] = useState(false)
 
 	useEffect(function () {
+		console.log("permissions", permissions)
+		console.log("role", role)
 		if (formState?.success) {
 			setOpen(false)
 		}
@@ -46,7 +48,7 @@ export default function EditRole({ role, permissions }: Readonly<{ role: Role, p
 					<div>
 						{permissions.map(perm => (
 							<Label key={perm.permission_name} className="w-full flex items-center gap-4 mb-2">
-								<Checkbox name="permissions" value={perm.id} defaultChecked={role.roles_has_permissions.some(rolePerm => rolePerm.permissions_id === perm.id)} />
+								<Checkbox name="permissions" value={perm.id} defaultChecked={role.permissions.some(rolePerm => rolePerm.id === perm.id)} />
 								{perm.permission_name}
 							</Label>
 						))}

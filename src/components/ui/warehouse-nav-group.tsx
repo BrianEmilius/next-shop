@@ -1,38 +1,35 @@
-import { ChevronRight, LucideSettings2, LucideUserCog } from "lucide-react"
+import { ChevronRight, LucideBook } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsible"
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem } from "./sidebar"
 import Link from "next/link"
 
 const items = [
 	{
-		title: "User Management",
-		icon: <LucideUserCog />,
+		title: "Catalog",
+		icon: <LucideBook />,
 		items: [
 			{
-				title: "Roles",
-				href: "/dashboard/roles"
+				title: "Products",
+				href: "/dashboard/products"
 			}, {
-				title: "Users",
-				href: "/dashboard/users"
-			}
-		]
-	}, {
-		title: "Settings",
-		icon: <LucideSettings2 />,
-		items: [
-			{
-				title: "General",
-				href: "/dashboard/settings"
+				title: "Categories",
+				href: "/dashboard/categories"
+			}, {
+				title: "Brands",
+				href: "/dashboard/brands"
+			}, {
+				title: "Tags",
+				href: "/dashboard/tags"
 			}
 		]
 	}
 ]
 
-export default function AdminNavGroup() {
+export default function WarehouseNavGroup() {
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>
-				Admin Options
+				Warehouse
 			</SidebarGroupLabel>
 			{items.map(item => (
 				<SidebarMenu key={item.title}>
@@ -62,16 +59,4 @@ export default function AdminNavGroup() {
 			))}
 		</SidebarGroup>
 	)
-}
-
-interface NavGroup {
-	title: string
-	items: {
-		title: string
-		icon: React.ReactNode
-		items: {
-			title: string
-			href: string
-		}[]
-	}[]
 }

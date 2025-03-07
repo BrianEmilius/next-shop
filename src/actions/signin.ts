@@ -43,7 +43,7 @@ export default async function signin(prevState: any, formData: FormData) {
 		}
 	}
 
-	const currentUser = user.users_has_credentials[0].users
+	const currentUser = user.users
 	const permissions = await getPermissionsForUser(currentUser)
 
 	const payload = {
@@ -69,11 +69,7 @@ export default async function signin(prevState: any, formData: FormData) {
 			token: refresh_token,
 			sid: sessionID,
 			fingerprint: validated.data.fingerprint,
-			users_has_tokens: {
-				create: {
-					users_id: currentUser.id
-				}
-			}
+			usersId: Number(payload.userId)
 		}
 	})
 

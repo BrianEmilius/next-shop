@@ -25,23 +25,23 @@ export default async function createUser(prevState: any, formData: FormData) {
 	const prisma = new PrismaClient()
 
 	try {
-		const credentials = await prisma.credentials.create({
-			data: {
-				type: "local",
-				identifier: validated.data.username,
-				password: hashedPassword
-			}
-		})
-
 		const user = await prisma.users.create({
 			data: {
-				users_has_credentials: {
+				credentials: {
 					create: {
-						credentials_id: credentials.id
+						type: "local",
+						identifier: validated.data.username,
+						password: hashedPassword
+					}
+				},
+				roles: {
+					connect: {
+						role_name: "default"
 					}
 				}
 			}
 		})
+
 	} catch (error: any) {
 		if (error.code === "P2002") {
 			return {

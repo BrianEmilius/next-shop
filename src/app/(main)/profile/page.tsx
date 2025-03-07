@@ -48,14 +48,14 @@ export default async function ProfilePage() {
 			{/* TODO: Create a list of credentials to edit / add / remove */}
 			<Separator className="my-4" />
 			<Heading level={2}>Credentials</Heading>
-			{credentials.map(credential => (
-				credential.credentials.type === "local" && (
-					<form key={credential.credentials.id}>
+			{credentials.map(item => (
+				item.type === "local" && (
+					<form key={item.id}>
 						<Heading level={3}>Local username</Heading>
 						<div>
 							<Label>
 								Username
-								<Input type="text" name="username" defaultValue={credential.credentials.identifier} />
+								<Input type="text" name="username" defaultValue={item.identifier} />
 							</Label>
 						</div>
 					</form>
@@ -69,20 +69,13 @@ interface User {
 	id: number
 	firstname: string
 	lastname: string
-	users_has_roles: {
-		users_id: number
-		roles_id: number
-		roles: {
+	roles: {
+		id: number
+		role_name: string
+		protected: boolean
+		permissions: {
 			id: number
-			role_name: string
-			roles_has_permissions: {
-				roles_id: number
-				permissions_id: number
-				permissions: {
-					id: number
-					permission_name: string
-				}
-			}
+			permission_name: string
 		}
 	}
 }

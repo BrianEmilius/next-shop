@@ -10,11 +10,7 @@ export default async function RolesPage() {
 
 	const roles: Array<Role> = await prisma.roles.findMany({
 		include: {
-			roles_has_permissions: {
-				include: {
-					permissions: true
-				}
-			}
+			permissions: true
 		}
 	})
 

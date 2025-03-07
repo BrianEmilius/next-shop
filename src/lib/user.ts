@@ -3,20 +3,14 @@ import { PrismaClient } from "@prisma/client";
 export async function getUserByID(id: number) {
 	const prisma = new PrismaClient()
 
-	const user = await prisma.users.findUnique({
+	const user = await prisma.users.findFirst({
 		where: {
 			id
 		},
 		include: {
-			users_has_roles: {
+			roles: {
 				include: {
-					roles: {
-						include: {
-							roles_has_permissions: {
-								include: { permissions: true }
-							}
-						}
-					}
+					permissions: true
 				}
 			}
 		}
@@ -30,33 +24,23 @@ export async function getUserByID(id: number) {
 export async function getUserByIdentifier(identifier: string) {
 	const prisma = new PrismaClient()
 
-	const user = await prisma.credentials.findFirst({
+	const user = await prisma.credentials.findUnique({
 		where: {
-			identifier: identifier
+			identifier
 		},
 		include: {
-			users_has_credentials: {
+			users: {
 				include: {
-					users: {
+					roles: {
 						include: {
-							users_has_roles: {
-								include: {
-									roles: {
-										include: {
-											roles_has_permissions: {
-												include: { permissions: true }
-											}
-										}
-									}
-								}
-							}
+							permissions: true
 						}
 					}
 				}
-			}
+			},
 		}
 	})
-
+	console.log(user)
 	prisma.$disconnect()
 
 	return user
@@ -65,13 +49,10 @@ export async function getUserByIdentifier(identifier: string) {
 export async function getCredentialsForUser(id: number) {
 	const prisma = new PrismaClient()
 
-	const credentials = await prisma.users_has_credentials.findMany({
+	const credentials = await prisma.credentials.findMany({
 		where: {
-			users_id: id
+			usersId: id
 		},
-		include: {
-			credentials: true
-		}
 	})
 
 	prisma.$disconnect()
