@@ -9,7 +9,7 @@ export async function generateToken({ payload, expiration }: { payload: any, exp
 		.setProtectedHeader({
 			alg: "RS256",
 			kid: privateKey.kid,
-			jku: "http://localhost:3000/api/jwks.json",
+			jku: "http://localhost:3016/api/jwks.json",
 		})
 		.setAudience(payload.userId)
 		.setIssuedAt()

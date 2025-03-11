@@ -69,7 +69,7 @@ export default async function signin(prevState: any, formData: FormData) {
 			token: refresh_token,
 			sid: sessionID,
 			fingerprint: validated.data.fingerprint,
-			usersId: Number(payload.userId)
+			usersId: currentUser.id
 		}
 	})
 

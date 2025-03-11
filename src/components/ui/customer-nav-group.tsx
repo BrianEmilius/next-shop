@@ -7,7 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsib
 
 const items = [
 	{
-		title: "Support Tickets",
+		title: "Tickets",
 		icon: LucideTicket,
 		href: "/dashboard/tickets",
 		items: [

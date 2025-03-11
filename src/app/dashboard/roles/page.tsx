@@ -1,5 +1,5 @@
-import AddRole from "@/components/forms/add-role-form"
-import EditRole from "@/components/forms/edit-role-form"
+import AddRole from "@/components/dashboard/forms/add-role-form"
+import EditRole from "@/components/dashboard/forms/edit-role-form"
 import Heading from "@/components/typography/heading"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { PrismaClient } from "@prisma/client"

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import { generateJWKPair } from "./src/lib/key"
 
 const prisma = new PrismaClient()
 
@@ -40,6 +41,6 @@ const site_config = await prisma.site_config.create({
 	}
 })
 
-await fetch("http://localhost:3000/api/keys", {
-	method: "POST"
-})
+prisma.$disconnect()
+
+await generateJWKPair()

@@ -1,14 +1,14 @@
 "use client"
 
 import { useActionState, useEffect, useState } from "react"
-import { Button } from "../ui/button"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import editRole from "@/actions/edit-role"
 import { type Role, type Permission } from "@/types/access-controls"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { LucideEdit } from "lucide-react"
 
 export default function EditRole({ role, permissions }: Readonly<{ role: Role, permissions: Array<Permission> }>) {
